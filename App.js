@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, FlatList, Dimensions, ScrollView, StatusBar, Button, SafeAreaView, Image, TouchableOpacity} from 'react-native';
+import { StyleSheet, View, Text, FlatList, Dimensions, ScrollView, StatusBar, Button, Animated, SafeAreaView, Image, TouchableOpacity} from 'react-native';
 import Swiper from 'react-native-swiper';
 import ViewMoreText from 'react-native-view-more-text';
+import Stars from 'react-native-stars';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -54,6 +56,9 @@ ServerAccess() {
       )
     }
 
+componentWillMount() {
+    this.animatedValue = new Animated.Value(0)
+}
 
 componentDidMount() {
     this.ServerAccess()
@@ -62,13 +67,25 @@ componentDidMount() {
       scrollValue = scrollValue + width;   // width = screen width 
       _scrollView.scrollTo({x: scrollValue}) 
     }, 4000);
+
+    Animated.timing(this.animatedValue, {
+        toValue:1,
+        duration:1500
+    }).start()
 }
 
     render() {
-        const { scrollContainer, container, sliderImage, textContainer, upperContainer, description,
+        const { scrollContainer, container, sliderImage, textContainer, upperContainer, description, stars,
                 overlapContainer, icon, aboutContainer, button, footer, lowerConatiner, tabNav, text, 
-                smallImage, colorWhite, page, borderData, rating, photos, font18} = styles;
-   
+                smallImage, colorWhite, page, borderData, rating, photos, font18, myStarStyle, myEmptyStarStyle} = styles;
+        
+        const interpolateRotation = this.animatedValue.interpolate({
+            inputRange: [0, 1],
+            outputRange: ['0deg', '360deg'],
+
+        })
+
+        
     return (
         <ScrollView style= {scrollContainer}> 
             <View style= {container}>
@@ -87,10 +104,10 @@ componentDidMount() {
                     })}                
                    </ScrollView> 
                        <View style= {icon}>
-                            <Image source={require('./assets/favourite.png')} style= {{height:20, width:20}}/>
+                            <Image source={{uri: 'http://mariafresa.net/data_gallery/heart-outline-clip-art-at-clker-com-vector-clip-art-online-royalty-3S6KPT-clipart.png'}} style= {{height:20, width:20}}/>
                        </View>
                     <View style={overlapContainer}>
-                        <View style={textContainer}>
+                        <Animated.View style={{padding:10, position:'absolute', backgroundColor:'rgba(243,70,109,.7)',height:130, width:300, transform: [{ rotate: interpolateRotation }]}}>
                             <Text style={{fontWeight:'700', fontSize:24, color:'#fff'}}>{this.state.name}</Text>
                             <Text style={{fontWeight:'600', fontSize:20, color:'#fff'}}>Greater Kailash Part-II</Text>
                             <Text style={{color:'#fff', fontSize:18}}>{this.state.type}</Text>
@@ -98,7 +115,7 @@ componentDidMount() {
                                 <Text style={{color:'#fff', fontSize:18}}>Open till 11:00PM</Text>
                                 <Text style={{color:'#fff', fontSize:18}}>{this.state.rating} rating</Text>
                             </View>
-                        </View>
+                        </Animated.View>
                     </View> 
                 </View>                                            
                <View style={lowerConatiner}>
@@ -117,21 +134,32 @@ componentDidMount() {
                             <Text style={text}> Menu Listed </Text>
                             <View style={page}> 
                                 <TouchableOpacity>                               
-                                    <Image source = {require('./assets/menu2.jpg')} style= {smallImage}/>
+                                    <Image source = {{uri: 'https://b.zmtcdn.com/data/menus/655/53655/7ac6493051b883a818aa599b8e2ff964.jpg'}} style= {smallImage}/>
                                 </TouchableOpacity>
                                 <TouchableOpacity>
-                                    <Image source = {require('./assets/menu2.jpg')} style= {smallImage}/>
+                                    <Image source = {{uri: 'https://b.zmtcdn.com/data/menus/004/301004/12545d2b5fa408de9a29e995453bac51.jpg'}} style= {smallImage}/>
                                 </TouchableOpacity>
                                 <TouchableOpacity>
-                                    <Image source = {require('./assets/menu3.jpg')} style= {smallImage}/>
+                                    <Image source = {{uri:'https://b.zmtcdn.com/data/menus/560/10560/13831045e6ce0234f5f8b7301e38faba.jpg'}} style= {smallImage}/>
                                 </TouchableOpacity>
                                 <TouchableOpacity>
-                                    <Image source = {require('./assets/menu4.jpg')} style= {smallImage}/>
+                                    <Image source = {{uri: 'https://b.zmtcdn.com/data/menus/438/36438/7e81fec8f179d57816c61b9b29d6f02a.jpg'}} style= {smallImage}/>
                                 </TouchableOpacity>
                             </View>
                             <View style= {borderData}>
                                 <Text style={rating}>Rating</Text>
-                                <Text style={description}>{this.state.rating} rating</Text>
+                                <View style={stars}>
+                                    <Text style={description}>{this.state.rating} rating</Text>
+                                    <Stars
+                                        default={4.5}
+                                        count={5}
+                                        half={true}
+                                        starSize={50}
+                                        fullStar={<Icon name={'star'} style={[myStarStyle]}/>}
+                                        emptyStar={<Icon name={'star-outline'} style={[myStarStyle, myEmptyStarStyle]}/>}
+                                        halfStar={<Icon name={'star-half'} style={[myStarStyle]}/>}
+                                      />
+                                  </View>
                             </View>
                             <View style= {borderData}>
                                 <Text style={{marginBottom:10, fontWeight:'700', fontSize:24, color: '#fff', marginTop:20}}>Photos and Videos</Text>
@@ -187,12 +215,8 @@ const styles = StyleSheet.create({
         
         //marginBottom:10
     },
-    textContainer: {
-        padding:10,
-        position:'absolute', 
-        backgroundColor:'rgba(243,70,109,.7)',       
-        height:130,
-        width:300,
+    stars: {
+        flexDirection: 'row'
     },
     borderData: {
         borderTopWidth: 0.2, 
@@ -240,7 +264,8 @@ const styles = StyleSheet.create({
     description: {
         fontSize:16, 
         marginTop:10,
-        color:'white'
+        color:'white',
+        marginRight:10
     },
     photos: {
         flexDirection:'row'
@@ -262,7 +287,19 @@ const styles = StyleSheet.create({
     },
     font18: {
         fontSize: 18
-    }
+    },
+    myStarStyle: {
+    marginTop:15,
+    color: 'yellow',
+    backgroundColor: 'transparent',
+    textShadowColor: 'black',
+    textShadowOffset: {width: 1, height: 1},
+    textShadowRadius: 2,
+  },
+  myEmptyStarStyle: {
+    marginTop:15,
+    color: 'white',
+  }
 });
 
 
